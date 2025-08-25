@@ -1,0 +1,38 @@
+# Maintainer: Pedro Henrique / phkaiser13 <you@example.com>
+# SPDX-License-Identifier: Apache-2.0
+
+pkgname='ph'
+_pkgname='Peitch'
+pkgver='3.2.3-beta-test'
+pkgrel=1
+pkgdesc="The Polyglot Assistant for Git & DevOps Workflows"
+arch=('x86_64' 'aarch64')
+url="https://github.com/phkaiser13/Peitch"
+license=('Apache-2.0')
+
+# Runtime dependencies
+depends=('curl' 'lua' 'nlohmann-json')
+# Build-time dependencies
+makedepends=('cmake' 'rust' 'pkgconf')
+
+# Source: use explicit filename::url to ensure reproducible source name
+source=("${_pkgname}-${pkgver}.tar.gz::https://github.com/phkaiser13/${_pkgname}/archive/refs/tags/v${pkgver}.tar.gz")
+sha256sums=('40a8bf552724e727f773c6d44c850d34db43991f741a374475caf803a5f9eeb6')
+
+build() {
+  cd "${srcdir}/${_pkgname}-${pkgver}"
+
+  # Out-of-source CMake build
+  cmake -B build -S . \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr
+
+  cmake --build build --parallel
+}
+
+package() {
+  cd "${srcdir}/${_pkgname}-${pkgver}"
+
+  # Install into pkgdir
+  DESTDIR="${pkgdir}" cmake --install build
+}
